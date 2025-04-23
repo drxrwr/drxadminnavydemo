@@ -1,79 +1,62 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('inputContainer');
-
-  for (let i = 0; i < 20; i++) {
-    const row = document.createElement('div');
-    row.className = 'input-row';
-    row.innerHTML = `
-      <input type="text" placeholder="Nama file (tanpa .vcf)" class="file-name">
-      <textarea placeholder="Masukkan nomor satu per baris" class="number-list"></textarea>
-      <button onclick="generateVCF(this)">Generate VCF</button>
-    `;
-    container.appendChild(row);
+window.onload = () => {
+  const jumlahAwal = document.getElementById('jumlahAwal');
+  for (let i = 1; i <= 20; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = i;
+    jumlahAwal.appendChild(opt);
   }
-});
+};
 
-function generateVCF(button) {
-  const row = button.parentElement;
-  const fileInput = row.querySelector('.file-name');
-  const numberInput = row.querySelector('.number-list');
+function formatNumber(num) {
+  num = num.trim();
+  if (num.startsWith('+') || num.startsWith('0')) return num;
+  return '+' + num;
+}
 
-  const adminName = document.getElementById('adminName').value || 'Admin';
-  const navyName = document.getElementById('navyName').value || 'Navy';
-  const adminExtra = (document.getElementById('adminExtra').value || '').split(',').map(n => n.trim()).filter(n => n);
-  const navyExtra = (document.getElementById('navyExtra').value || '').split(',').map(n => n.trim()).filter(n => n);
-  const urutan = document.getElementById('firstType').value;
-  const jumlahAwal = parseInt(document.getElementById('jumlahKontak').value) || 1;
+function generateVCF() {
+  const adminName = document.getElementById('adminName').value.trim() || 'admin';
+  const navyName = document.getElementById('navyName').value.trim() || 'navy';
+  const startType = document.getElementById('startType').value;
+  const jumlahAwal = parseInt(document.getElementById('jumlahAwal').value);
+  const extraNames = document.getElementById('extraNames').value.split(',').map(n => n.trim()).filter(Boolean);
+  const fileNames = document.getElementById('fileNames').value.split('\n').map(f => f.trim()).filter(Boolean);
+  const phoneNumbersRaw = document.getElementById('phoneNumbers').value.split('\n');
+  const phoneNumbers = phoneNumbersRaw.map(formatNumber).filter(n => n.match(/^(\+|0)\d{9,}$/));
 
-  const numbers = numberInput.value
-    .split('\n')
-    .map(n => n.trim())
-    .filter(n => n.length >= 10);
+  fileNames.forEach((fileNameRaw, index) => {
+    const fileName = "ADMIN NAVY " + fileNameRaw;
+    let vcfContent = "";
+    const nomor = phoneNumbers[index];
+    if (!nomor) return;
 
-  const fixedNumbers = numbers.map(n => {
-    if (n.startsWith('+') || n.startsWith('0')) return n;
-    return '+' + n;
-  });
+    let contactList = [];
+    let urutan = 1;
 
-  const nameList = [];
-  let adminCount = 1;
-  let navyCount = 1;
-
-  const baseList = urutan === 'admin' ? [adminName, navyName] : [navyName, adminName];
-  let current = 0;
-
-  for (let i = 0; i < fixedNumbers.length; i++) {
-    let name;
-    if (i < jumlahAwal) {
-      name = baseList[current] + ' ' + (current === 0 ? adminCount++ : navyCount++);
-    } else if (adminExtra.length > 0 || navyExtra.length > 0) {
-      const extra = current === 0 ? adminExtra : navyExtra;
-      if (extra.length > 0) {
-        name = extra.shift() + ' ' + (current === 0 ? adminCount++ : navyCount++);
+    for (let i = 0; i < jumlahAwal; i++) {
+      if (startType === 'admin') {
+        contactList.push(`${adminName} admin ${urutan}`);
+        contactList.push(`${navyName} navy ${urutan}`);
       } else {
-        name = baseList[current] + ' ' + (current === 0 ? adminCount++ : navyCount++);
+        contactList.push(`${navyName} navy ${urutan}`);
+        contactList.push(`${adminName} admin ${urutan}`);
       }
-    } else {
-      name = baseList[current] + ' ' + (current === 0 ? adminCount++ : navyCount++);
+      urutan++;
     }
 
-    nameList.push(name);
-    current = 1 - current; // ganti admin/navy
-  }
+    extraNames.forEach(extra => {
+      contactList.push(`${adminName} ${extra} ${urutan}`);
+      urutan++;
+    });
 
-  let vcf = '';
-  fixedNumbers.forEach((num, i) => {
-    vcf += `BEGIN:VCARD\nVERSION:3.0\nFN:${nameList[i]}\nTEL:${num}\nEND:VCARD\n`;
+    contactList.forEach(name => {
+      vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${nomor}\nEND:VCARD\n\n`;
+    });
+
+    const blob = new Blob([vcfContent.trim()], { type: "text/vcard;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName + ".vcf";
+    link.click();
   });
-
-  const filename = `ADMIN NAVY ${fileInput.value || 'kontak'}.vcf`;
-  const blob = new Blob([vcf], { type: 'text/vcard' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-
-  URL.revokeObjectURL(url);
 }
