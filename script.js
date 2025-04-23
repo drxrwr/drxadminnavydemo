@@ -5,7 +5,7 @@ for (let i = 1; i <= 20; i++) {
   box.className = "file-box";
 
   const filename = document.createElement("input");
-  filename.placeholder = Nama file untuk kolom ${i};
+  filename.placeholder = `Nama file untuk kolom ${i}`;
 
   const textarea = document.createElement("textarea");
   textarea.placeholder = "Isi nomor (satu per baris)";
@@ -49,10 +49,10 @@ function generateVCF(fileName, rawText) {
     let label;
     if ((isAdmin && index < jumlahAwal) || (!isAdmin && index >= jumlahAwal)) {
       adminCount++;
-      label = ${namaAdmin} ${adminCount};
+      label = `${namaAdmin} ${adminCount}`;
     } else {
       navyCount++;
-      label = ${namaNavy} ${navyCount};
+      label = `${namaNavy} ${navyCount}`;
     }
     contacts.push({ name: label, phone: num });
   });
@@ -60,26 +60,26 @@ function generateVCF(fileName, rawText) {
   tambahanAdmin.forEach((n) => {
     if (/^(\+?\d{10,})$/.test(n)) {
       adminCount++;
-      contacts.push({ name: ${namaAdmin} ${adminCount}, phone: n });
+      contacts.push({ name: `${namaAdmin} ${adminCount}`, phone: n });
     }
   });
 
   tambahanNavy.forEach((n) => {
     if (/^(\+?\d{10,})$/.test(n)) {
       navyCount++;
-      contacts.push({ name: ${namaNavy} ${navyCount}, phone: n });
+      contacts.push({ name: `${namaNavy} ${navyCount}`, phone: n });
     }
   });
 
   let vcfContent = contacts
     .map(
-      (c) => BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\nTEL;TYPE=CELL:${c.phone}\nEND:VCARD
+      (c) => `BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\nTEL;TYPE=CELL:${c.phone}\nEND:VCARD`
     )
     .join('\n');
 
   const blob = new Blob([vcfContent], { type: "text/vcard" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = ADMIN NAVY ${fileName || 'contacts'}.vcf;
+  a.download = `ADMIN NAVY ${fileName || 'contacts'}.vcf`;
   a.click();
-        }
+}
