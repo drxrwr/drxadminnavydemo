@@ -1,173 +1,34 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>VCF Generator Admin Navy</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: white;
-      color: black;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-    select, input[type="text"], textarea {
-      padding: 5px;
-      margin: 5px 0;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    textarea {
-      resize: vertical;
-      min-height: 60px;
-      font-family: monospace;
-    }
-    button {
-      background: green;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      margin-top: 5px;
-      cursor: pointer;
-    }
-    .row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-    .column {
-      border: 1px solid #ccc;
-      padding: 10px;
-      width: calc(50% - 10px);
-    }
-    label {
-      font-weight: bold;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generator Kontak VCF</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Generator VCF Admin & Navy</h1>
+  <div class="container">
+    <h1>Generator Kontak VCF</h1>
 
-  <div>
-    <label>Nama Kontak Admin:</label>
-    <input type="text" id="namaAdmin" placeholder="Contoh: OKE ADMIN">
-    <label>Nama Kontak Navy:</label>
-    <input type="text" id="namaNavy" placeholder="Contoh: OKE NAVY">
+    <div class="top-fields">
+      <input type="text" id="namaAdmin" placeholder="Nama Admin (misal: OKE ADMIN)" />
+      <input type="text" id="namaNavy" placeholder="Nama Navy (misal: OKE NAVY)" />
+      <select id="pilihanAwal">
+        <option value="admin">Mulai dari Admin</option>
+        <option value="navy">Mulai dari Navy</option>
+      </select>
+      <select id="urutan">
+        <option value="atas">Dari Atas</option>
+        <option value="bawah">Dari Bawah</option>
+      </select>
+      <input type="number" id="jumlahAwal" min="1" max="20" value="1" placeholder="Jumlah Awal" />
+      <textarea id="extraAdmin" placeholder="Nomor Tambahan Admin (opsional)"></textarea>
+      <textarea id="extraNavy" placeholder="Nomor Tambahan Navy (opsional)"></textarea>
+    </div>
 
-    <label>Pilih Tipe Pertama:</label>
-    <select id="tipeUtama">
-      <option value="admin">Admin</option>
-      <option value="navy">Navy</option>
-    </select>
-
-    <label>Urutan dari:</label>
-    <select id="urutan">
-      <option value="atas">Atas</option>
-      <option value="bawah">Bawah</option>
-    </select>
-
-    <label>Jumlah Kontak Awal:</label>
-    <select id="jumlah">
-      ${[...Array(20).keys()].map(i => `<option value="${i + 1}">${i + 1}</option>`).join('')}
-    </select>
-
-    <label>Tambahan Nomor Admin (opsional):</label>
-    <textarea id="tambahanAdmin" placeholder="1 nomor per baris"></textarea>
-
-    <label>Tambahan Nomor Navy (opsional):</label>
-    <textarea id="tambahanNavy" placeholder="1 nomor per baris"></textarea>
+    <div class="file-columns" id="fileColumns"></div>
   </div>
 
-  <hr>
-
-  <div class="row" id="formArea"></div>
-
-  <script>
-    const formArea = document.getElementById("formArea");
-
-    // Buat 20 kolom input
-    for (let i = 0; i < 20; i++) {
-      const col = document.createElement("div");
-      col.className = "column";
-      col.innerHTML = `
-        <label>Nama File:</label>
-        <input type="text" placeholder="Misal: 63" class="namafile">
-        <label>Nomor:</label>
-        <textarea class="nomer" placeholder="1 nomor per baris"></textarea>
-        <button onclick="generateVCF(this)">Download</button>
-      `;
-      formArea.appendChild(col);
-    }
-
-    function getValidNumbers(text) {
-      return text.split('\n').map(s => s.trim())
-        .filter(s => /^(\+?\d{10,})$/.test(s.replace(/\D/g, '')))
-        .map(s => {
-          s = s.replace(/[^+\d]/g, '');
-          if (s.startsWith('+')) return s;
-          if (s.startsWith('0')) return '+62' + s.slice(1);
-          if (s.startsWith('62')) return '+' + s;
-          if (s.startsWith('+')) return s;
-          return '+' + s;
-        });
-    }
-
-    function generateVCF(btn) {
-      const column = btn.parentElement;
-      const namaFileInput = column.querySelector('.namafile').value.trim();
-      const nomerText = column.querySelector('.nomer').value.trim();
-
-      const tipeUtama = document.getElementById("tipeUtama").value;
-      const urutan = document.getElementById("urutan").value;
-      const jumlah = parseInt(document.getElementById("jumlah").value);
-      const namaAdmin = document.getElementById("namaAdmin").value.trim();
-      const namaNavy = document.getElementById("namaNavy").value.trim();
-      const tambahanAdmin = getValidNumbers(document.getElementById("tambahanAdmin").value);
-      const tambahanNavy = getValidNumbers(document.getElementById("tambahanNavy").value);
-
-      let allNumbers = getValidNumbers(nomerText);
-      if (urutan === "bawah") allNumbers = allNumbers.reverse();
-
-      let utama = tipeUtama === "admin" ? namaAdmin : namaNavy;
-      let lawan = tipeUtama === "admin" ? namaNavy : namaAdmin;
-
-      let utamaList = allNumbers.slice(0, jumlah);
-      let lawanList = allNumbers.slice(jumlah);
-
-      if (tipeUtama === "admin") {
-        utamaList = utamaList.concat(tambahanAdmin);
-        lawanList = lawanList.concat(tambahanNavy);
-      } else {
-        utamaList = utamaList.concat(tambahanNavy);
-        lawanList = lawanList.concat(tambahanAdmin);
-      }
-
-      let vcf = "";
-      let count = 1;
-
-      for (let no of utamaList) {
-        vcf += `BEGIN:VCARD\nVERSION:3.0\nFN:${utama} ${count}\nTEL;TYPE=CELL:${no}\nEND:VCARD\n`;
-        count++;
-      }
-
-      let count2 = 1;
-      for (let no of lawanList) {
-        vcf += `BEGIN:VCARD\nVERSION:3.0\nFN:${lawan} ${count2}\nTEL;TYPE=CELL:${no}\nEND:VCARD\n`;
-        count2++;
-      }
-
-      const fileBlob = new Blob([vcf], { type: 'text/vcard' });
-      const url = URL.createObjectURL(fileBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `ADMIN NAVY ${namaFileInput || 'file'}.vcf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
