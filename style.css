@@ -1,88 +1,64 @@
 body {
   font-family: sans-serif;
-  background: white;
-  color: black;
+  background: #f2f2f2;
   margin: 0;
-  padding: 20px;
+  padding: 0;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 700px;
   margin: auto;
+  background: white;
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 20px;
   font-size: 24px;
 }
 
-.top-fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
+.form-group {
+  margin-bottom: 15px;
 }
 
-.top-fields input,
-.top-fields select,
-.top-fields textarea {
-  padding: 8px;
-  font-size: 14px;
-  border-radius: 6px;
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
-#extraAdmin, #extraNavy {
-  flex: 1;
-  min-width: 300px;
-  height: 80px;
+textarea {
+  height: 150px;
+  font-family: monospace;
+  resize: vertical;
 }
 
 button {
+  margin-top: 10px;
   background: green;
   color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
+  padding: 10px 15px;
   font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 button:hover {
   background: darkgreen;
 }
 
-.file-columns {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 15px;
+.input-row {
+  margin-bottom: 15px;
 }
 
-.file-box {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  background: #f9f9f9;
-}
-
-.file-box input {
-  margin-bottom: 8px;
-  padding: 6px;
-  font-size: 14px;
-}
-
-.file-box textarea {
-  flex: 1;
-  resize: vertical;
-  font-size: 14px;
-  padding: 6px;
-  height: 200px;
-  margin-bottom: 8px;
-}
-
-.file-box button {
-  margin-top: auto;
+.input-row textarea {
+  height: 120px;
+  font-size: 13px;
 }
