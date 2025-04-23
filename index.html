@@ -1,54 +1,46 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generator VCF</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generator VCF Admin & Navy</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Generator Kontak VCF</h1>
+  <h1>Generator VCF Admin & Navy</h1>
 
-    <div class="form-group">
-      <label>Nama Admin</label>
-      <input type="text" id="adminName" placeholder="Misal: Rudi">
-    </div>
+  <div class="section">
+    <label for="adminName">Nama Admin</label>
+    <input type="text" id="adminName" placeholder="Contoh: kynzz" />
+    
+    <label for="navyName">Nama Navy</label>
+    <input type="text" id="navyName" placeholder="Contoh: kynzz" />
 
-    <div class="form-group">
-      <label>Nama Navy</label>
-      <input type="text" id="navyName" placeholder="Misal: Bayu">
-    </div>
+    <label for="startType">Kontak Pertama</label>
+    <select id="startType">
+      <option value="admin">Admin Duluan</option>
+      <option value="navy">Navy Duluan</option>
+    </select>
 
-    <div class="form-group">
-      <label>Tambahan Nama Admin (opsional)</label>
-      <input type="text" id="adminExtra" placeholder="Pisahkan dengan koma">
-    </div>
+    <label for="jumlahAwal">Jumlah Kontak Awal</label>
+    <select id="jumlahAwal">
+      <!-- JS akan isi ini -->
+    </select>
 
-    <div class="form-group">
-      <label>Tambahan Nama Navy (opsional)</label>
-      <input type="text" id="navyExtra" placeholder="Pisahkan dengan koma">
-    </div>
-
-    <div class="form-group">
-      <label>Urutan Kontak Pertama</label>
-      <select id="firstType">
-        <option value="admin">Admin Duluan</option>
-        <option value="navy">Navy Duluan</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>Jumlah Kontak Awal (1-20)</label>
-      <input type="number" id="jumlahKontak" min="1" max="20" value="5">
-    </div>
-
-    <div class="input-list">
-      <!-- 20 baris input -->
-      <div id="inputContainer"></div>
-    </div>
-
-    <script src="script.js"></script>
+    <label for="extraNames">Tambahan Nama (opsional, pisahkan dengan koma)</label>
+    <input type="text" id="extraNames" placeholder="Contoh: leader, support" />
   </div>
+
+  <div class="section">
+    <label for="fileNames">Nama File (1 per baris)</label>
+    <textarea id="fileNames" placeholder="nama1&#10;nama2&#10;..."></textarea>
+    
+    <label for="phoneNumbers">Nomor Telepon (1 per baris)</label>
+    <textarea id="phoneNumbers" placeholder="Nomor-nomor..."></textarea>
+    
+    <button onclick="generateVCF()">Download Semua File VCF</button>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
