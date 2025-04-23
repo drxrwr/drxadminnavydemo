@@ -1,62 +1,85 @@
-window.onload = () => {
-  const jumlahAwal = document.getElementById('jumlahAwal');
-  for (let i = 1; i <= 20; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = i;
-    jumlahAwal.appendChild(opt);
-  }
-};
+const fileColumns = document.getElementById("fileColumns");
 
-function formatNumber(num) {
-  num = num.trim();
-  if (num.startsWith('+') || num.startsWith('0')) return num;
-  return '+' + num;
-}
+for (let i = 1; i <= 20; i++) {
+  const box = document.createElement("div");
+  box.className = "file-box";
 
-function generateVCF() {
-  const adminName = document.getElementById('adminName').value.trim() || 'admin';
-  const navyName = document.getElementById('navyName').value.trim() || 'navy';
-  const startType = document.getElementById('startType').value;
-  const jumlahAwal = parseInt(document.getElementById('jumlahAwal').value);
-  const extraNames = document.getElementById('extraNames').value.split(',').map(n => n.trim()).filter(Boolean);
-  const fileNames = document.getElementById('fileNames').value.split('\n').map(f => f.trim()).filter(Boolean);
-  const phoneNumbersRaw = document.getElementById('phoneNumbers').value.split('\n');
-  const phoneNumbers = phoneNumbersRaw.map(formatNumber).filter(n => n.match(/^(\+|0)\d{9,}$/));
+  const filename = document.createElement("input");
+  filename.placeholder = Nama file untuk kolom ${i};
 
-  fileNames.forEach((fileNameRaw, index) => {
-    const fileName = "ADMIN NAVY " + fileNameRaw;
-    let vcfContent = "";
-    const nomor = phoneNumbers[index];
-    if (!nomor) return;
+  const textarea = document.createElement("textarea");
+  textarea.placeholder = "Isi nomor (satu per baris)";
 
-    let contactList = [];
-    let urutan = 1;
-
-    for (let i = 0; i < jumlahAwal; i++) {
-      if (startType === 'admin') {
-        contactList.push(`${adminName} admin ${urutan}`);
-        contactList.push(`${navyName} navy ${urutan}`);
-      } else {
-        contactList.push(`${navyName} navy ${urutan}`);
-        contactList.push(`${adminName} admin ${urutan}`);
-      }
-      urutan++;
-    }
-
-    extraNames.forEach(extra => {
-      contactList.push(`${adminName} ${extra} ${urutan}`);
-      urutan++;
-    });
-
-    contactList.forEach(name => {
-      vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${nomor}\nEND:VCARD\n\n`;
-    });
-
-    const blob = new Blob([vcfContent.trim()], { type: "text/vcard;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName + ".vcf";
-    link.click();
+  const button = document.createElement("button");
+  button.textContent = "Download .vcf";
+  button.addEventListener("click", () => {
+    generateVCF(filename.value.trim(), textarea.value.trim());
   });
+
+  box.appendChild(filename);
+  box.appendChild(textarea);
+  box.appendChild(button);
+  fileColumns.appendChild(box);
 }
+
+function generateVCF(fileName, rawText) {
+  const namaAdmin = document.getElementById("namaAdmin").value.trim();
+  const namaNavy = document.getElementById("namaNavy").value.trim();
+  const awal = document.getElementById("pilihanAwal").value;
+  const urutan = document.getElementById("urutan").value;
+  const jumlahAwal = parseInt(document.getElementById("jumlahAwal").value) || 1;
+
+  const tambahanAdmin = document.getElementById("extraAdmin").value.trim().split('\n').filter(Boolean);
+  const tambahanNavy = document.getElementById("extraNavy").value.trim().split('\n').filter(Boolean);
+
+  let numbers = rawText
+    .split('\n')
+    .map(n => n.replace(/[^\d+]/g, '').replace(/^(\+?)(\d{1,3})(\d{5,})$/, '$1$2$3'))
+    .filter(n => /^(\+?\d{10,})$/.test(n));
+
+  if (urutan === "bawah") numbers = numbers.reverse();
+
+  const contacts = [];
+  let adminCount = 0;
+  let navyCount = 0;
+
+  const isAdmin = awal === "admin";
+
+  numbers.forEach((num, index) => {
+    let label;
+    if ((isAdmin && index < jumlahAwal) || (!isAdmin && index >= jumlahAwal)) {
+      adminCount++;
+      label = ${namaAdmin} ${adminCount};
+    } else {
+      navyCount++;
+      label = ${namaNavy} ${navyCount};
+    }
+    contacts.push({ name: label, phone: num });
+  });
+
+  tambahanAdmin.forEach((n) => {
+    if (/^(\+?\d{10,})$/.test(n)) {
+      adminCount++;
+      contacts.push({ name: ${namaAdmin} ${adminCount}, phone: n });
+    }
+  });
+
+  tambahanNavy.forEach((n) => {
+    if (/^(\+?\d{10,})$/.test(n)) {
+      navyCount++;
+      contacts.push({ name: ${namaNavy} ${navyCount}, phone: n });
+    }
+  });
+
+  let vcfContent = contacts
+    .map(
+      (c) => BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\nTEL;TYPE=CELL:${c.phone}\nEND:VCARD
+    )
+    .join('\n');
+
+  const blob = new Blob([vcfContent], { type: "text/vcard" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = ADMIN NAVY ${fileName || 'contacts'}.vcf;
+  a.click();
+        }
