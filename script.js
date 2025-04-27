@@ -32,10 +32,12 @@ function generateVCF(fileName, rawText) {
   const tambahanAdmin = document.getElementById("extraAdmin").value.trim().split('\n').filter(Boolean);
   const tambahanNavy = document.getElementById("extraNavy").value.trim().split('\n').filter(Boolean);
 
+  // Proses nomor utama
   let numbers = rawText
     .split('\n')
-    .map(n => n.replace(/[^\d+]/g, '').replace(/^(\+?)(\d{1,3})(\d{5,})$/, '$1$2$3'))
-    .filter(n => /^(\+?\d{10,})$/.test(n));
+    .map(n => n.replace(/[^\d+]/g, '')) // bersihkan karakter aneh
+    .map(n => n.startsWith('+') ? n : '+' + n) // tambahkan + kalau belum ada
+    .filter(n => /^(\+\d{10,})$/.test(n)); // validasi
 
   if (urutan === "bawah") numbers = numbers.reverse();
 
@@ -57,20 +59,27 @@ function generateVCF(fileName, rawText) {
     contacts.push({ name: label, phone: num });
   });
 
+  // Proses tambahan Admin
   tambahanAdmin.forEach((n) => {
-    if (/^(\+?\d{10,})$/.test(n)) {
+    const nomor = n.replace(/[^\d+]/g, '');
+    const nomorFix = nomor.startsWith('+') ? nomor : '+' + nomor;
+    if (/^(\+\d{10,})$/.test(nomorFix)) {
       adminCount++;
-      contacts.push({ name: `${namaAdmin} ${adminCount}`, phone: n });
+      contacts.push({ name: `${namaAdmin} ${adminCount}`, phone: nomorFix });
     }
   });
 
+  // Proses tambahan Navy
   tambahanNavy.forEach((n) => {
-    if (/^(\+?\d{10,})$/.test(n)) {
+    const nomor = n.replace(/[^\d+]/g, '');
+    const nomorFix = nomor.startsWith('+') ? nomor : '+' + nomor;
+    if (/^(\+\d{10,})$/.test(nomorFix)) {
       navyCount++;
-      contacts.push({ name: `${namaNavy} ${navyCount}`, phone: n });
+      contacts.push({ name: `${namaNavy} ${navyCount}`, phone: nomorFix });
     }
   });
 
+  // Generate file VCF
   let vcfContent = contacts
     .map(
       (c) => `BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\nTEL;TYPE=CELL:${c.phone}\nEND:VCARD`
