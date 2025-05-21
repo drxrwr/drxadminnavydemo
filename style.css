@@ -1,3 +1,4 @@
+
 body {
   font-family: sans-serif;
   background: white;
@@ -17,7 +18,8 @@ h1 {
   font-size: 24px;
 }
 
-.top-fields {
+.top-fields,
+.autofill-fields {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -26,7 +28,8 @@ h1 {
 
 .top-fields input,
 .top-fields select,
-.top-fields textarea {
+.top-fields textarea,
+.autofill-fields input {
   padding: 8px;
   font-size: 14px;
   border-radius: 6px;
