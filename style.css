@@ -1,4 +1,3 @@
-
 body {
   font-family: sans-serif;
   background: white;
@@ -42,6 +41,38 @@ h1 {
   height: 80px;
 }
 
+/* Tambahan styling untuk tombol hapus nomor */
+.file-box .textarea-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+}
+
+.file-box textarea {
+  flex: 1;
+  height: 300px;
+  font-size: 14px;
+  padding: 6px;
+  resize: vertical;
+}
+
+.btn-clear-numbers {
+  background: #c0392b;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  height: 36px;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.btn-clear-numbers:hover {
+  background: #922b21;
+}
+
 button {
   background: green;
   color: white;
@@ -75,15 +106,6 @@ button:hover {
   margin-bottom: 8px;
   padding: 6px;
   font-size: 14px;
-}
-
-.file-box textarea {
-  flex: 1;
-  resize: vertical;
-  font-size: 14px;
-  padding: 6px;
-  height: 300px;
-  margin-bottom: 8px;
 }
 
 .file-box button {
