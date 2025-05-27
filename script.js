@@ -1,6 +1,6 @@
 const fileColumns = document.getElementById("fileColumns");
 
-// Buat 20 kolom file input
+// Buat 20 kolom file input dengan tombol hapus isi nomor di samping textarea
 for (let i = 1; i <= 20; i++) {
   const box = document.createElement("div");
   box.className = "file-box";
@@ -9,8 +9,22 @@ for (let i = 1; i <= 20; i++) {
   filename.placeholder = `Nama file untuk kolom ${i}`;
   filename.className = "file-name";
 
+  // Container untuk textarea dan tombol hapus nomor
+  const textareaRow = document.createElement("div");
+  textareaRow.className = "textarea-row";
+
   const textarea = document.createElement("textarea");
   textarea.placeholder = "Isi nomor (satu per baris)";
+  textareaRow.appendChild(textarea);
+
+  const clearNumbersBtn = document.createElement("button");
+  clearNumbersBtn.textContent = "Hapus Isi Nomor";
+  clearNumbersBtn.className = "btn-clear-numbers";
+  clearNumbersBtn.type = "button";
+  clearNumbersBtn.addEventListener("click", () => {
+    textarea.value = "";
+  });
+  textareaRow.appendChild(clearNumbersBtn);
 
   const button = document.createElement("button");
   button.textContent = "Download .vcf";
@@ -19,7 +33,7 @@ for (let i = 1; i <= 20; i++) {
   });
 
   box.appendChild(filename);
-  box.appendChild(textarea);
+  box.appendChild(textareaRow);
   box.appendChild(button);
   fileColumns.appendChild(box);
 }
@@ -51,18 +65,10 @@ function generateVCF(fileName, rawText) {
     let label;
     if ((isAdmin && index < jumlahAwal) || (!isAdmin && index >= jumlahAwal)) {
       adminCount++;
-      if (fileName) {
-        label = `${namaAdmin} ${fileName} ${adminCount}`;
-      } else {
-        label = `${namaAdmin} ${adminCount}`;
-      }
+      label = `${namaAdmin} ${adminCount}`;
     } else {
       navyCount++;
-      if (fileName) {
-        label = `${namaNavy} ${fileName} ${navyCount}`;
-      } else {
-        label = `${namaNavy} ${navyCount}`;
-      }
+      label = `${namaNavy} ${navyCount}`;
     }
     contacts.push({ name: label, phone: num });
   });
@@ -72,11 +78,7 @@ function generateVCF(fileName, rawText) {
     const nomorFix = nomor.startsWith('+') ? nomor : '+' + nomor;
     if (/^(\+\d{10,})$/.test(nomorFix)) {
       adminCount++;
-      if (fileName) {
-        contacts.push({ name: `${namaAdmin} ${fileName} ${adminCount}`, phone: nomorFix });
-      } else {
-        contacts.push({ name: `${namaAdmin} ${adminCount}`, phone: nomorFix });
-      }
+      contacts.push({ name: `${namaAdmin} ${adminCount}`, phone: nomorFix });
     }
   });
 
@@ -85,11 +87,7 @@ function generateVCF(fileName, rawText) {
     const nomorFix = nomor.startsWith('+') ? nomor : '+' + nomor;
     if (/^(\+\d{10,})$/.test(nomorFix)) {
       navyCount++;
-      if (fileName) {
-        contacts.push({ name: `${namaNavy} ${fileName} ${navyCount}`, phone: nomorFix });
-      } else {
-        contacts.push({ name: `${namaNavy} ${navyCount}`, phone: nomorFix });
-      }
+      contacts.push({ name: `${namaNavy} ${navyCount}`, phone: nomorFix });
     }
   });
 
@@ -111,30 +109,4 @@ function isiOtomatis() {
   const rangeInput = document.getElementById("rangeNomor").value.trim();
   const perBagian = parseInt(document.getElementById("perBagian").value.trim());
 
-  if (!/^(\d+)-(\d+)$/.test(rangeInput) || isNaN(perBagian) || perBagian <= 0) {
-    alert("Isi format rentang dengan benar, contoh: 123-152 dan bagi per berapa.");
-    return;
-  }
-
-  const [mulai, akhir] = rangeInput.split('-').map(Number);
-  const total = akhir - mulai + 1;
-  const fileInputs = document.querySelectorAll(".file-name");
-
-  let counter = 0;
-  for (let i = 0; i < total; i += perBagian) {
-    const from = mulai + i;
-    const to = Math.min(mulai + i + perBagian - 1, akhir);
-    if (fileInputs[counter]) {
-      fileInputs[counter].value = `${from}-${to}`;
-      counter++;
-    } else {
-      break;
-    }
-  }
-}
-
-// Fungsi hapus otomatis
-function hapusOtomatis() {
-  const fileInputs = document.querySelectorAll(".file-name");
-  fileInputs.forEach(input => input.value = "");
-}
+  if (!/^(\d
