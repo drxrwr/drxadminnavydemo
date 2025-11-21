@@ -42,60 +42,67 @@ function generateVCF(fileName, rawText) {
 
   if (urutan === "bawah") numbers = numbers.reverse();
 
-  const contacts = [];
+  // ======== Pisahkan ke 4 grup ========
+  let adminList = [];
+  let navyList = [];
+  let extraAdminList = [];
+  let extraNavyList = [];
+
   let adminCount = 0;
   let navyCount = 0;
   const isAdmin = awal === "admin";
 
+  // ======== ADMIN UTAMA & NAVY UTAMA ========
   numbers.forEach((num, index) => {
     let label;
+
     if ((isAdmin && index < jumlahAwal) || (!isAdmin && index >= jumlahAwal)) {
       adminCount++;
-      if (fileName) {
-        label = `${namaAdmin} ${fileName} ${adminCount}`;
-      } else {
-        label = `${namaAdmin} ${adminCount}`;
-      }
+      label = fileName ? `${namaAdmin} ${fileName} ${adminCount}` : `${namaAdmin} ${adminCount}`;
+      adminList.push({ name: label, phone: num });
     } else {
       navyCount++;
-      if (fileName) {
-        label = `${namaNavy} ${fileName} ${navyCount}`;
-      } else {
-        label = `${namaNavy} ${navyCount}`;
-      }
+      label = fileName ? `${namaNavy} ${fileName} ${navyCount}` : `${namaNavy} ${navyCount}`;
+      navyList.push({ name: label, phone: num });
     }
-    contacts.push({ name: label, phone: num });
   });
 
-  tambahanAdmin.forEach((n) => {
+  // ======== TAMBAHAN ADMIN ========
+  tambahanAdmin.forEach(n => {
     const nomor = n.replace(/[^\d+]/g, '');
     const nomorFix = nomor.startsWith('+') ? nomor : '+' + nomor;
+
     if (/^(\+\d{10,})$/.test(nomorFix)) {
       adminCount++;
-      if (fileName) {
-        contacts.push({ name: `${namaAdmin} ${fileName} ${adminCount}`, phone: nomorFix });
-      } else {
-        contacts.push({ name: `${namaAdmin} ${adminCount}`, phone: nomorFix });
-      }
+      const label = fileName ? `${namaAdmin} ${fileName} ${adminCount}` : `${namaAdmin} ${adminCount}`;
+      extraAdminList.push({ name: label, phone: nomorFix });
     }
   });
 
-  tambahanNavy.forEach((n) => {
+  // ======== TAMBAHAN NAVY ========
+  tambahanNavy.forEach(n => {
     const nomor = n.replace(/[^\d+]/g, '');
     const nomorFix = nomor.startsWith('+') ? nomor : '+' + nomor;
+
     if (/^(\+\d{10,})$/.test(nomorFix)) {
       navyCount++;
-      if (fileName) {
-        contacts.push({ name: `${namaNavy} ${fileName} ${navyCount}`, phone: nomorFix });
-      } else {
-        contacts.push({ name: `${namaNavy} ${navyCount}`, phone: nomorFix });
-      }
+      const label = fileName ? `${namaNavy} ${fileName} ${navyCount}` : `${namaNavy} ${navyCount}`;
+      extraNavyList.push({ name: label, phone: nomorFix });
     }
   });
 
+  // ======== GABUNG BERURUTAN ========
+  const contacts = [
+    ...adminList,
+    ...extraAdminList,
+    ...navyList,
+    ...extraNavyList
+  ];
+
+  // ======== BUAT FILE VCF ========
   let vcfContent = contacts
     .map(
-      (c) => `BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\nTEL;TYPE=CELL:${c.phone}\nEND:VCARD`
+      c => `BEGIN:VCARD\nVERSION:3.0\nFN:${c.name}\nTEL;TYPE=CELL:${c.phone}\nEND:VCARD`
     )
     .join('\n');
 
